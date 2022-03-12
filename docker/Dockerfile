@@ -1,10 +1,8 @@
-FROM nvidia/cuda:10.1-cudnn7-devel
+FROM nvidia/cuda:11.1.1-cudnn8-devel
 
 ENV DEBIAN_FRONTEND noninteractive
 RUN apt-get update && apt-get install -y \
-	python3-opencv ca-certificates python3-dev git wget sudo  \
-	cmake ninja-build protobuf-compiler libprotobuf-dev && \
-  rm -rf /var/lib/apt/lists/*
+        python3-opencv ca-certificates python3-dev git wget sudo ninja-build
 RUN ln -sv /usr/bin/python3 /usr/bin/python
 
 # create a non-root user
@@ -15,15 +13,14 @@ USER appuser
 WORKDIR /home/appuser
 
 ENV PATH="/home/appuser/.local/bin:${PATH}"
-RUN wget https://bootstrap.pypa.io/pip/3.6/get-pip.py && \
-	python3 get-pip.py --user && \
-	rm get-pip.py
+RUN wget https://bootstrap.pypa.io/get-pip.py && \
+        python3 get-pip.py --user && \
+        rm get-pip.py
 
 # install dependencies
 # See https://pytorch.org/ for other options if you use a different version of CUDA
-RUN pip install --user tensorboard
-RUN pip install --user torch==1.5 torchvision==0.6 -f https://download.pytorch.org/whl/cu101/torch_stable.html
-
+RUN pip install --user setuptools==59.5.0 tensorboard cmake scipy  # cmake from apt-get is too old
+RUN pip install --user torch==1.9.0 torchvision==0.10 -f https://download.pytorch.org/whl/cu111/torch_stable.html
 RUN pip install --user 'git+https://github.com/facebookresearch/fvcore'
 # install detectron2
 RUN git clone https://github.com/bladewaltz1/clipvid-tmp clipvid
@@ -43,6 +40,6 @@ WORKDIR /home/appuser/clipvid
 # run detectron2 under user "appuser":
 # wget http://images.cocodataset.org/val2017/000000439715.jpg -O input.jpg
 # python3 demo/demo.py  \
-	#--config-file configs/COCO-InstanceSegmentation/mask_rcnn_R_50_FPN_3x.yaml \
-	#--input input.jpg --output outputs/ \
-	#--opts MODEL.WEIGHTS detectron2://COCO-InstanceSegmentation/mask_rcnn_R_50_FPN_3x/137849600/model_final_f10217.pkl
+        #--config-file configs/COCO-InstanceSegmentation/mask_rcnn_R_50_FPN_3x.yaml \
+        #--input input.jpg --output outputs/ \
+        #--opts MODEL.WEIGHTS detectron2://COCO-InstanceSegmentation/mask_rcnn_R_50_FPN_3x/137849600/model_final_f10217.pkl
