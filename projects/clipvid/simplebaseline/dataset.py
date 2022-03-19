@@ -90,10 +90,10 @@ def split_train_video(records, num_chunks):
     return chunks
 
 
-def get_vid_val_dicts(data_dir, chunk_size, part):
+def get_vid_val_dicts(data_dir, chunk_size):
     count = 0
     database = []
-    vid_dir = os.path.join(data_dir, "%s", "VID", "val2", f"{part}")
+    vid_dir = os.path.join(data_dir, "%s", "VID", "val")
 
     for video in sorted(os.listdir(vid_dir % "Data")):
         jpegs = sorted(os.listdir(os.path.join(vid_dir % "Data", video)))
@@ -201,8 +201,7 @@ def get_det_dicts(data_dir, det_data_file):
 
 def register_vid_instances(data_root, 
                            num_train_chunks=15, 
-                           val_chunk_size=5,
-                           num_val_parts=4):
+                           val_chunk_size=5):
     """
     [ # database
       [ # records of one chunk
@@ -227,10 +226,9 @@ def register_vid_instances(data_root,
     DatasetCatalog.register(f"vid_train_{num_train_chunks}chunks",
         lambda: get_vid_train_dicts(path, num_train_chunks))
 
-    for part in range(num_val_parts):
-        DatasetCatalog.register(f"vid_val_part{part}", 
-            functools.partial(get_vid_val_dicts, path, val_chunk_size, part)
-        )
+    DatasetCatalog.register(f"vid_val_{val_chunk_size}csize", 
+        functools.partial(get_vid_val_dicts, path, val_chunk_size)
+    )
 
     DatasetCatalog.register("det", lambda: get_det_dicts(path,
         "ImageSets/DET_train_30classes.txt"))

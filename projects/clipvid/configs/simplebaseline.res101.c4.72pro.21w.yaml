@@ -22,7 +22,7 @@ MODEL:
     BOX_JIT_RATIO: 0.05
 DATASETS:
   TRAIN: ("vid_train_15chunks", "det")
-  TEST:  ("vid_val_part0",)
+  TEST:  ("vid_val_30csize",)
 SOLVER:
   STEPS: (120000, 180000)
   MAX_ITER: 210000
